@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  
+  keycloak-db:
+    image: postgres:10.22-alpine
+    container_name: keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak_usr
+      POSTGRES_PASSWORD: P@ssw0rd
+    ports:
+      - "5432:5432"
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.0.0
+    container_name: keycloak-server
+    environment:
+      - DB_VENDOR=postgres
+      - DB_ADDR=postgres
+      - DB_DATABASE=keycloak
+      - DB_SCHEMA=public
+      - DB_USER=keycloak_usr
+      - DB_PASSWORD=P@ssw0rd
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - "8083:8080"
+    command: start-dev
+    depends_on:
+      - keycloak-db
+
+volumes:
+  keycloak-db-data:
+
+networks:
+  default:
+    name: kc-network
