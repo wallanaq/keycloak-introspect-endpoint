@@ -7,4 +7,6 @@ server:
 
 keycloak:
   introspect:
-    publicKeyProvider: authorization_server
+    publicKeyProvider: ${PUBLIC_KEY_PROVIDER:authorization_server}
+    #publicKeyProvider: ${PUBLIC_KEY_PROVIDER:public_key_file}
+    publicKeyFile: ${PUBLIC_KEY_FILE:jwks.yaml}

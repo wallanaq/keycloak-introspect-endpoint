@@ -1,9 +1,15 @@
 package com.wallanaq.api.service;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +31,7 @@ public class TokenIntrospectService {
   @Autowired
   private IntrospectConfig config;
 
-  public boolean validate(String token) throws InvalidKeySpecException, MalformedURLException, JwkException {
+  public boolean validate(String token) throws InvalidKeySpecException, MalformedURLException, JwkException, UnsupportedEncodingException, NoSuchAlgorithmException {
 
     DecodedJWT jwt = JWT.decode(token);
 
@@ -57,11 +63,24 @@ public class TokenIntrospectService {
 
   }
 
-  private RSAPublicKey loadPublicKeyJwksFile(DecodedJWT jwt) {
-    return null;
+  private RSAPublicKey loadPublicKeyJwksFile(DecodedJWT jwt) throws InvalidKeySpecException, UnsupportedEncodingException, NoSuchAlgorithmException {
+
+    String publicKey = config.getPublicKeys().get(jwt.getKeyId());
+
+    if (publicKey == null) {
+      throw new InvalidKeySpecException("Public key with kid " + jwt.getKeyId() + " not found");
+    }
+
+    byte[] keyBytes = Base64.getDecoder().decode(publicKey.getBytes("utf-8"));
+    X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+    KeyFactory factory = KeyFactory.getInstance("RSA");
+    PublicKey key = factory.generatePublic(spec);
+
+    return (RSAPublicKey) key;
+
   }
 
-  private RSAPublicKey loadPublicKey(DecodedJWT jwt) throws InvalidKeySpecException, MalformedURLException, JwkException {
+  private RSAPublicKey loadPublicKey(DecodedJWT jwt) throws InvalidKeySpecException, MalformedURLException, JwkException, UnsupportedEncodingException, NoSuchAlgorithmException {
 
     if (jwt == null || jwt.getKeyId() == null) {
       throw new InvalidKeySpecException("Token invalid with key id null");
