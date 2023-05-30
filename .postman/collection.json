@@ -143,6 +143,29 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "/certs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8083/realms/dev/protocol/openid-connect/certs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"realms",
+						"dev",
+						"protocol",
+						"openid-connect",
+						"certs"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [
